@@ -1,0 +1,131 @@
+﻿@model SurveyViewModel
+
+<style>
+    .customHide{
+        display:none;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <form method="post" asp-controller="Persons" asp-action="AddSurvey">
+            <div class="row">
+                <div class="col-md-4">
+                    <label>Name</label>
+                    <input class="form-control" asp-for="HouseHold.PersonName" />
+                </div>
+                <div class="col-md-4">
+                    <label>Phone</label>
+                    <input class="form-control" asp-for="HouseHold.PhoneNumber" />
+                </div>
+                <div class="col-md-4">
+                    <label>IdNumber</label>
+                    <input class="form-control" asp-for="HouseHold.IdNumber" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-control" asp-for="HouseHold.PersonGender">
+                        <option value="">Select Gender...</option>
+                        <option value="@Enums.Gender.Male">Male</option>
+                        <option value="@Enums.Gender.Female">Female</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>HasDisability</label>
+                    <input class="form-check-inline" type="checkbox" asp-for="HouseHold.HasDisability" />
+                </div>
+                <div class="col-md-4">
+                    <label>BirthDate</label>
+                    <input class="form-control" type="date" asp-for="HouseHold.BirthDate" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label>Family Sizes</label>
+                    <input id="familySize" class="form-control" type="number" asp-for="FamilySize" />
+                </div>
+            </div>
+            <div class="myPartial">
+            </div>
+            <hr />
+            <div class="row">
+                <h4>Dose your home is damged by earthquake ?</h4>
+                <div class="col-md-4">
+                    No: <input class="custom-radio myRad" value="no" type="radio" name="damged" checked/>
+                    Yes: <input class="custom-radio myRad" value="yes" type="radio" name="damged" />
+                </div>
+            </div>
+            <div id="myans" class="row customHide">
+                <div class="col-md-4">
+                    <select id="myAnswers" class="form-control" name="Answers" asp-for="Answers" asp-items="@ViewBag.answers" multiple></select>
+                </div>
+                <br />
+                <div class="col-md-4">
+                    <textarea id="txtArea" class="form-control customHide" asp-for="Desc"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a class="btn btn-primary" asp-controller="Persons" asp-action="AddSurvey">Cancel</a>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+@section Scripts{ 
+
+    <script>
+    $(document).ready(function () {
+
+        var size;
+        var myDiv;
+        $("#familySize").on("keyup", function () {
+
+            size = $(this).val();
+            if (size > 0) {
+                var members = JSON.stringify(@Html.Raw(Json.Serialize(Model.Members)));
+                $.ajax({
+                    url: '@Url.Action("DisplayMembersFields", "Persons")',
+                    method: "GET",
+                    data: { num: size, members: members },
+                    success: function (res) {
+                        $(".myPartial").html(res);
+                    }
+                });
+            }
+        });
+
+        var myRadVal = $(".myRad").val();
+        $(".myRad").on("change", function () {
+            myRadVal = $(this).val();
+            if (myRadVal == "yes") {
+                $("#myans").removeClass("customHide");
+            } else {
+                $("#myans").addClass("customHide");
+            }
+        });
+
+
+        var myAnswers = [];
+        $("#myAnswers").on("change", function () {
+
+            myAnswers = $(this).val();
+            if (jQuery.inArray('4', myAnswers) !== -1) {
+                $("#txtArea").removeClass("customHide");
+            } else {
+                $("#txtArea").addClass("customHide");
+            }
+
+        });
+
+
+    });
+    </script>
+
+}
